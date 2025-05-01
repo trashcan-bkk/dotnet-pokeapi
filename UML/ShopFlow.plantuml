@@ -1,0 +1,88 @@
+@startuml ShopService
+
+actor User
+participant "PokemonMartController" as Controller
+participant "ShopService" as Service
+database "AppDbContext" as DB
+
+== Get user ==
+
+User -> Controller : GetUser(username)
+Controller -> Service : GetUserAsync(username)
+Service -> DB : Query Users where Username == username
+Service -> Service : Processing
+alt user not found
+    Service -> Controller : Return null
+else user found
+    Service -> Controller : Return User (Id, Username, PokeCoins)
+end
+
+Controller -> User : Result
+
+== Get Item ==
+
+User -> Service : GetItemAsync(itemName)
+Service -> DB : Query Items where ItemName == itemName
+alt item not found
+    Service -> User : return null
+else item found
+    Service -> User : return Item (Id, ItemName, Cost)
+end
+
+== Buy Item ==
+
+User -> Service : BuyItemAsync(username, itemName, quantity)
+Service -> DB : Get User (with Items and Item)
+alt user not found
+    Service -> User : return "User not found."
+end
+
+Service -> DB : Get Item by itemName
+alt item not found
+    Service -> User : return "Item not found."
+end
+
+Service -> Service : Calculate totalCost = item.Cost * quantity
+alt not enough PokéCoins
+    Service -> User : return "Insufficient PokéCoins."
+end
+
+alt user doesn't own item
+    Service -> DB : Add new UserItem
+else user already owns item
+    Service -> Service : Increase UserItem.Quantity
+end
+
+Service -> Service : Subtract PokéCoins
+Service -> DB : SaveChanges
+Service -> User : return success message
+
+== Sell Item ==
+
+User -> Service : SellItemAsync(username, itemName, quantity)
+Service -> DB : Get User (with Items and Item)
+alt user not found
+    Service -> User : return "User not found."
+end
+
+Service -> DB : Get Item by itemName
+alt item not found
+    Service -> User : return "Item not found."
+end
+
+alt doesn't have item or enough quantity
+    Service -> User : return "Not enough to sell"
+end
+
+Service -> Service : Decrease quantity / remove item if 0
+Service -> Service : Add PokéCoins (half item cost * qty)
+Service -> DB : SaveChanges
+Service -> User : return success message
+
+== Get inventory ==
+
+User -> Service : GetInventoryAsync(username)
+Service -> DB : Get User with Items
+Service -> User : return List<UserItem>
+
+@enduml

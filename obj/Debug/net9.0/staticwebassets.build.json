@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "DWzm1A+cXDVmyon4+5jWgg48R5ec+187AaaCgowHeL0=",
+  "Source": "dotnet-pokeapi",
+  "BasePath": "_content/dotnet-pokeapi",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}

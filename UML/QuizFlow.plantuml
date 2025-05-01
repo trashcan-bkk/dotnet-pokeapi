@@ -1,0 +1,26 @@
+@startuml
+title Pokémon - Quiz & Answer Flow
+
+actor User
+participant "PokemonQuizController" as API
+participant "QuizService" as Service
+participant "PokeAPI" as External
+
+== User gets quiz ==
+
+User -> API : GET /trashcan/pokemon/quiz
+API -> Service : GetPokemonTypeQuizAsync()
+Service -> External : GET https://pokeapi.co/api/v2/pokemon/{id}
+External --> Service : JSON (name, types)
+Service -> Service : Build question + options\nEncode questionId
+Service --> API : Quiz
+API --> User : Quiz in JSON (w/ options, questionId)
+
+== User submits answer ==
+
+User -> API : POST /trashcan/pokemon/check-answer\n{ answer, questionId }
+API -> API : Decode questionId\nExtract correct answer
+API -> API : Compare answer vs correctAnswer
+API --> User : Result (Correct / Wrong)
+
+@enduml
